@@ -71,7 +71,7 @@ length = len(data)
 train_data,test_data = get_train_test(data,5)
 train_label,test_label = get_train_test(label,5)
 
-for i in range(1000):
+for i in range(500):
     _,summary_val = sess.run([train,summary],feed_dict={data_ph:train_data,label_ph:train_label})
     writer.add_summary(summary_val,i)
     if i % 50 == 0:
@@ -94,21 +94,27 @@ prelabel = np.argmax(predict,axis=1)[:,np.newaxis]
 #print(np.argmax(predict,axis = 1))
 pred1 = []
 pred0 = []
+pred_diff = []
+test_label = np.argmax(test_label,axis=1)[:,np.newaxis]
 #print(test_data)
 #print(prelabel)
-for _test_data,_prelabel in zip(test_data,prelabel):
-    if _prelabel == 1:
+for _test_data,_prelabel,_truelabel in zip(test_data,prelabel,test_label):
+    if _prelabel == 1 and _prelabel == _truelabel:
         pred1.append(_test_data.tolist())
-    else:
-        print(_test_data)
+    elif _prelabel == 0 and _prelabel == _truelabel:
+        #print(_test_data)
         pred0.append(_test_data.tolist())
+    if  _prelabel != _truelabel:
+        pred_diff.append(np.hstack((_test_data,_truelabel,_prelabel)).tolist())
 pred0 = np.array(pred0)
 pred1 = np.array(pred1)
-
+pred_diff = np.array(pred_diff)
+print(pred_diff)
 #plt.scatter(data[:len(data)//2,0],data[:len(data)//2,1])
 #plt.scatter(data[len(data)//2:length,0],data[len(data)//2:length,1])
 plt.scatter(pred1[:,0],pred1[:,1])
 plt.scatter(pred0[:,0],pred0[:,1])
+plt.scatter(pred_diff[:,0],pred_diff[:,1],c = 'r')
 plt.show()
 
 
