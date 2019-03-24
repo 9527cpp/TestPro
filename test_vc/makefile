@@ -1,0 +1,23 @@
+PROGRAM = test.exe
+
+CPPOPT = /w /EHsc /D_CRT_SECURE_NO_DEPRECATE
+#CPPOPT = /w /EHsc /D_CRT_SECURE_NO_DEPRECATE /FA /O2 /arch:SSE2 
+
+cc = cl 
+#cc = g++
+CFLAGS = 
+LIBS = 
+
+CPPSOURCES = test19.cpp
+CPPOBJECTS = $(CPPSOURCES:.cpp=.obj)
+ 
+all: $(PROGRAM)
+
+$(PROGRAM): $(CPPOBJECTS)
+	link.exe /out:$(PROGRAM)  $(CPPOBJECTS)  $(LIBS)
+	
+$(CPPOBJECTS):  $(CPPSOURCES)
+	$(cc) $(CPPOPT) /c $(CPPSOURCES) 
+		
+clean:  
+    del $(CPPOBJECTS) $(PROGRAM) 	

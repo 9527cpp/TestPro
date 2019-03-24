@@ -1,0 +1,19 @@
+PROGRAM = test19
+CPP = cl.exe
+LINK = link.exe
+
+CPPSOURCES = $(PROGRAM).cpp       
+CPPOBJECTS = $(PROGRAM).obj
+
+CFLAGS=
+LFLAGS=
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(CPPOBJECTS)
+	$(LINK) $(LFLAGS) /out:$(PROGRAM) $(CPPOBJECTS) 
+	
+$(CPPOBJECTS): $(CPPSOURCES)
+	$(CPP) $(CFLAGS) $(CPPSOURCES)
+clean:
+	del $(CPPOBJECTS) $(PROGRAM)

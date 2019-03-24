@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+//1234567890qwertyuiop[asdfghjkl;'zxcvbnm,.,.<>				FSDFsdlfl']
+
+char *itoa(intnum,char*str,intradix)
+{
+	
+	
+//char index[]="0123456789ABCDEF";
+//unsigned unum;
+//int i=0,j,k;
+//if(radix==10&&num<0)
+//{
+//unum=(unsigned)-num;
+//str[i++]='-';
+//}
+//else unum=(unsigned)num;
+//do{
+//str[i++]=index[unum%(unsigned)radix];
+//unum/=radix;
+//}while(unum);
+//str[i]='\0';
+//if(str[0]=='-')k=1;
+//elsek=0;
+//char temp;
+//for(j=k;j<=(i-1)/2;j++)
+//{
+//temp=str[j];
+//str[j]=str[i-1+k-j];
+//str[i-1+k-j]=temp;
+//}
+//return str;
+}
+
+void Change12To24(char * pSrc,char *pDst)
+{
+char pAmOrPm[3];
+char pTime[3] ;
+char pTempTime[3];
+memcpy(pAmOrPm,pSrc+8,2);
+memcpy(pTime,pSrc,2);
+memcpy(pDst,pSrc,8);
+pTime[2]='\0';
+pAmOrPm[2]='\0';
+if(strcmp(pAmOrPm,"PM")==0)
+{
+itoa(atoi(pTime)+12,pTempTime,10);
+memcpy(pDst,pTempTime,2);
+}
+else if(strcmp(pTime,"12")==0)
+{
+pDst[0]='0';
+pDst[1]='0';
+}
+}
+
+int main()
+{
+char * pSrc = "12:00:00AM";
+char pDst[9]={0};
+Change12To24(pSrc,pDst);
+printf("%s\n",pDst);
+return 0;
+}
