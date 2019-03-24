@@ -7,18 +7,24 @@ import shutil
 def gen_data(num):
     x_col1 = np.random.uniform(-1,0,num)[:,np.newaxis]
     x_col2 = np.random.uniform(0,1,num)[:,np.newaxis]
-    label_left = np.tile(np.array([1,0]),(num,1))
+    label_left = np.tile(np.array([1,0,0]),(num,1))
     #print (label_left)
 
     x_row1 = np.random.uniform(0,1,num)[:,np.newaxis]
     x_row2 = np.random.uniform(0,1,num)[:,np.newaxis]
-    label_right = np.tile(np.array([0,1]),(num,1))
+    label_right = np.tile(np.array([0,1,0]),(num,1))
     #print (label_right)
 
-    x_col = np.hstack((x_col1,x_col2))
-    x_row = np.hstack((x_row1,x_row2))
-    data = np.vstack((x_col,x_row))
-    label= np.vstack((label_left,label_right))
+    x_col3 = np.random.uniform(-1,1,num )[:,np.newaxis]
+    x_row3 = np.random.uniform(1,2,num)[:,np.newaxis]
+    label_up = np.tile(np.array([0,0,1]),(num,1))
+
+    x_col = np.vstack((x_col1,x_col2,x_col3))
+    x_row = np.vstack((x_row1,x_row2,x_row3))
+    data = np.hstack((x_col,x_row))
+    label= np.vstack((label_left,label_right,label_up))
+    print(np.shape(data))
+    print(np.shape(label))
     return data,label
 
 def add_layer(input,insize,outsize,active_fun = None):
@@ -41,11 +47,12 @@ def get_train_test(input,step):
         i+=step
     return train,test
 
+
 data_ph = tf.placeholder(tf.float32,[None,2])
-label_ph = tf.placeholder(tf.float32,[None,2])
+label_ph = tf.placeholder(tf.float32,[None,3])
 
 hider_layer = add_layer(data_ph,2,10,tf.nn.relu)
-out_layer = add_layer(hider_layer,10,2,None)
+out_layer = add_layer(hider_layer,10,3,None)
 
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = label_ph,logits = out_layer))
 #acc,acc_op = tf.metrics.accuracy(label_ph,out_layer)
@@ -67,11 +74,15 @@ saver = tf.train.Saver()
 sess.run(init_op)
 sess.run(init_op_for_acc)
 data,label = gen_data(5000)
+
+#print(data)
+#print(label)
+
 length = len(data)
 train_data,test_data = get_train_test(data,5)
 train_label,test_label = get_train_test(label,5)
 
-for i in range(500):
+for i in range(5000):
     _,summary_val = sess.run([train,summary],feed_dict={data_ph:train_data,label_ph:train_label})
     writer.add_summary(summary_val,i)
     if i % 50 == 0:
@@ -92,8 +103,10 @@ prelabel = np.argmax(predict,axis=1)[:,np.newaxis]
 #print(test_data)
 #print(predict)
 #print(np.argmax(predict,axis = 1))
+pred2 = []
 pred1 = []
 pred0 = []
+
 pred_diff = []
 test_label = np.argmax(test_label,axis=1)[:,np.newaxis]
 #print(test_data)
@@ -104,17 +117,23 @@ for _test_data,_prelabel,_truelabel in zip(test_data,prelabel,test_label):
     elif _prelabel == 0 and _prelabel == _truelabel:
         #print(_test_data)
         pred0.append(_test_data.tolist())
+    elif _prelabel == 2 and _prelabel == _truelabel:
+        #print(_test_data)
+        pred2.append(_test_data.tolist()) 
     if  _prelabel != _truelabel:
         pred_diff.append(np.hstack((_test_data,_truelabel,_prelabel)).tolist())
 pred0 = np.array(pred0)
 pred1 = np.array(pred1)
+pred2 = np.array(pred2)
 pred_diff = np.array(pred_diff)
-print(pred_diff)
+#print(pred_diff)
 #plt.scatter(data[:len(data)//2,0],data[:len(data)//2,1])
 #plt.scatter(data[len(data)//2:length,0],data[len(data)//2:length,1])
+plt.scatter(pred2[:,0],pred2[:,1])
 plt.scatter(pred1[:,0],pred1[:,1])
 plt.scatter(pred0[:,0],pred0[:,1])
-plt.scatter(pred_diff[:,0],pred_diff[:,1],c = 'r')
+if len(pred_diff) > 0:
+    plt.scatter(pred_diff[:,0],pred_diff[:,1],c = 'r')
 plt.show()
 
 
